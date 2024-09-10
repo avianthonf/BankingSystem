@@ -7,5 +7,7 @@ using namespace std;
 
 int main()
 {
-    Account::createAccounts(1);
+    acc.pullAccount(19);
+
+    acc.display();
 }
