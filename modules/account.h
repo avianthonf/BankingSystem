@@ -15,48 +15,13 @@ using namespace std;
 class Account : public Person
 {
     private:
-        int accountNumber = 0;
+        int accountNumber = -1;
         string accountType = "Savings Account";
         float accountBalance = 0;
 
         bool initNotRun = true;
 
         static bool dbNotOpen;
-
-        int getDBAccNum()
-        {
-            if (dbNotOpen)
-                openDB();
-
-            sqlite3_stmt *statement;
-            const char* query = "SELECT accountNumber FROM Accounts BY accountNumber DESC LIMIT 1;";
-
-            int returnCode;
-            
-            // Prepare query
-            returnCode = sqlite3_prepare16_v2(DB, query, -1, &statement, nullptr);
-            if (returnCode != SQLITE_OK)
-            {
-                cerr << "Error occured with database: " << sqlite3_errmsg(DB) << endl;
-                closeDB();
-                dbNotOpen = true;
-                return -1;
-            }
-
-            // Execute query
-            returnCode = sqlite3_step(statement);
-            if (returnCode == SQLITE_ROW)
-            {
-                int savedAccNum = sqlite3_column_int(statement, 0);
-                return savedAccNum;
-            }
-            else 
-            {
-                return -1;
-            }
-            
-            sqlite3_finalize(statement);
-        }
 
 
     public:
@@ -181,11 +146,6 @@ class Account : public Person
             }
         }
 
-        // to implement
-        int deleteAccount()
-        {
-            return 0;
-        }
 
         void saveAccount()
         {
@@ -215,13 +175,18 @@ class Account : public Person
         void dumpAccount()
         {
             initNotRun = true;
+            accountNumber = -1;
 
         }
+
+        static int getDBAccNum();
 
         
 
         static void createAccounts(int n);
         bool pullAccount(int accNum);
+        static void displayAllAccounts();
+        static void deleteAccount(int accNum);
 
 
 };
@@ -229,6 +194,41 @@ class Account : public Person
 bool Account::dbNotOpen = true;
 
 Account acc;
+
+int Account::getDBAccNum()
+{
+    if (dbNotOpen)
+        openDB();
+
+    sqlite3_stmt *statement;
+    const char* query = "SELECT accountNumber FROM Accounts ORDER BY accountNumber DESC LIMIT 1;";
+
+    int returnCode;
+    
+    // Prepare query
+    returnCode = sqlite3_prepare_v2(DB, query, -1, &statement, nullptr);
+    if (returnCode != SQLITE_OK)
+    {
+        cerr << "Error occured with database: " << sqlite3_errmsg(DB) << endl;
+        closeDB();
+        dbNotOpen = true;
+        return -1;
+    }
+
+    // Execute query
+    returnCode = sqlite3_step(statement);
+    if (returnCode == SQLITE_ROW)
+    {
+        int savedAccNum = sqlite3_column_int(statement, 0);
+        return savedAccNum;
+    }
+    else 
+    {
+        return -1;
+    }
+    
+    sqlite3_finalize(statement);
+}
 
 void Account::createAccounts(int n)
 {
@@ -286,6 +286,7 @@ bool Account::pullAccount(int accNum)
     if (Account::dbNotOpen)
     {
         openDB();
+        dbNotOpen = false;
 
     }
 
@@ -343,6 +344,94 @@ bool Account::pullAccount(int accNum)
     sqlite3_finalize(statement);
 
     return true;
+
+}
+
+void Account::displayAllAccounts()
+{
+    if (dbNotOpen)
+    {
+        openDB();
+        dbNotOpen = false;
+    }
+
+    int first=1, last= getDBAccNum();
+
+    for (int i=first; i <= last; i++)
+    {
+        acc.pullAccount(i);
+        
+        if (acc.accountNumber != -1)
+        {
+            acc.display();
+        }
+
+        acc.dumpAccount();
+    }
+
+}
+
+void Account::deleteAccount(int accNum)
+{
+    if (dbNotOpen)
+    {
+        openDB();
+        dbNotOpen = false;
+    }
+
+    acc.dumpAccount();
+
+    acc.pullAccount(accNum);
+
+    if (acc.accountNumber == -1)
+    {
+        cerr << "Account does not exist with Account Number: " << accNum << endl;
+        cout << "Failed to delete." << endl;
+    }
+    else
+    {
+        char choice;
+        cout << "Found Account: " << endl;
+        acc.display();
+        cout << "Do you wish to delete? (y/n) :";
+        cin >> choice;
+
+        choice = tolower(choice);
+
+        if (choice == 'y')
+        {
+            // Delete account
+            sqlite3_stmt *statement;
+            string query = "DELETE FROM Accounts WHERE accountNumber = " + to_string(accNum) + ";";
+
+            int returnCode;
+
+            returnCode = sqlite3_prepare_v2(DB, query.c_str(), -1, &statement, nullptr);
+            if (returnCode != SQLITE_OK)
+            {
+                cerr << "Failed to delete: " << sqlite3_errmsg(DB) << endl;
+            }
+
+            returnCode = sqlite3_step(statement);
+
+            if (returnCode == SQLITE_DONE)
+            {
+                cout << "Account deleted successfully." << endl;
+            }
+            else
+            {
+                cerr << "Error deleting account: " << sqlite3_errmsg(DB) << endl;
+            }
+
+        }
+        
+        
+        
+        
+    }
+
+    acc.dumpAccount();
+    
 
 }
 

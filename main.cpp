@@ -7,7 +7,11 @@ using namespace std;
 
 int main()
 {
-    acc.pullAccount(19);
+    int x;
+    cout << "Acc num: " ;
+    cin >> x;
+    Account::deleteAccount(x);
 
-    acc.display();
+    Account::displayAllAccounts();
+
 }
