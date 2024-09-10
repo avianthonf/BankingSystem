@@ -2,6 +2,7 @@
 #define ACCOUNT_H
 
 #include <iostream>
+#include <string.h>
 #include "person.h"
 #include "db.h"
 
@@ -177,17 +178,21 @@ void Account::createAccounts(int n)
         cout << "Enter Account Balance: ";
         cin >> accountBalance;
 
+
+        cin.ignore();
         cout << "Enter Name: ";
-        cin >> name;
+        getline(cin, name);
 
         cout << "Enter Age: ";
         cin >> age;
 
         cout << "Enter Address:" << endl;
+        cin.ignore();
         cout << "\tState: ";
-        cin >> address.state;
+        getline(cin, address.state);
+        cin.ignore();
         cout << "\tCity: ";
-        cin >> address.city;
+        getline(cin, address.city);
         cout << "\tPincode: ";
         cin >> address.pincode;
 
