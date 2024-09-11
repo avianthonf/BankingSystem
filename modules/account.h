@@ -23,6 +23,8 @@ class Account : public Person
 
         static bool dbNotOpen;
 
+        static int modifyDB(int accNum, int attribute, string svalue = "", float fvalue = 0, int ivalue = 0);
+        static int modifyDBAddress(int accNum, AddressStruct addr);
 
     public:
         void init(int accType, float balance, string n, int a, AddressStruct addr)
@@ -228,6 +230,161 @@ int Account::getDBAccNum()
     }
     
     sqlite3_finalize(statement);
+}
+
+int Account::modifyDBAddress(int accNum, AddressStruct addr)
+{
+    if (dbNotOpen)
+    {
+        openDB();
+        dbNotOpen = false;
+    }
+
+    string sql[3];
+
+    sql[0] = "UPDATE Accounts SET pincode = ? WHERE accountNumber = ?;";
+    sql[1] = "UPDATE Accounts SET city = ? WHERE accountNumber = ?;";
+    sql[2] = "UPDATE Accounts SET state = ? WHERE accountNumber = ?;";
+
+    sqlite3_stmt* statement[3];
+
+    int rc[3];
+
+    for (int i=0; i<3; i++)
+    {
+        rc[i] = sqlite3_prepare_v2(DB, sql[i].c_str(), -1, &statement[i], nullptr);
+
+        if (rc[i] != SQLITE_OK)
+        {
+            cerr << "Failed to prepare statement: " << sqlite3_errmsg(DB) << endl;
+            return -1;
+        }
+    }
+
+    for (int i=0; i < 3; i++)
+    {
+        sqlite3_bind_int(statement[i], 2, accNum);
+    }
+
+    sqlite3_bind_int(statement[0], 1, addr.pincode);
+    sqlite3_bind_text(statement[1], 1, addr.city.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(statement[2], 1, addr.state.c_str(), -1, SQLITE_STATIC);
+
+    for (int i=0; i < 3; i++)
+    {
+        rc[i] = sqlite3_step(statement[i]);
+
+        if (rc[i] != SQLITE_DONE)
+        {
+            cerr << "Execution failed: " << sqlite3_errmsg(DB) << endl;
+            return -1;
+        }
+    }
+
+    for (int i=0; i < 3; i++)
+    {
+        sqlite3_finalize(statement[i]);
+    }
+
+
+    return 0;
+}
+
+int Account::modifyDB(int accNum, int attribute, string svalue, float fvalue, int ivalue)
+{
+    if (dbNotOpen)
+    {
+        openDB();
+        dbNotOpen = false;
+    }
+
+    string sql = "UPDATE Accounts SET ";
+
+    sqlite3_stmt *statement;
+
+
+    switch (attribute)
+    {
+    case 1: // Account type
+        sql.append("accountType = ? WHERE ");
+        break;
+
+    case 2: // Balance
+        sql.append("accountBalance = ? WHERE ");
+        break;
+
+    case 3: // Name
+        sql.append("name = ? WHERE ");
+        break;
+
+    case 4: // Age
+        sql.append("age = ? WHERE ");
+        break;
+    
+    default:
+        return 0;
+        break;
+    }
+
+    sql.append("accountNumber = ?;");
+
+    
+    int returnCode;
+
+    returnCode = sqlite3_prepare_v2(DB, sql.c_str(), -1, &statement, nullptr);
+    if (returnCode != SQLITE_OK)
+    {
+        cerr << "Failed to prepare statement: " << sqlite3_errmsg(DB) << endl;
+        return -1;
+    }
+
+    // values to bind
+
+    sqlite3_bind_int(statement, 2, accNum);
+
+    svalue = "'" + svalue + "'";
+    
+    switch (attribute)
+    {
+    case 1: // Account type
+        sqlite3_bind_text(statement, 1, svalue.c_str(), -1, SQLITE_STATIC);
+        break;
+
+    case 2: // Balance
+        sqlite3_bind_double(statement, 1, fvalue);
+        break;
+
+    case 3: // Name
+        sqlite3_bind_text(statement, 1, svalue.c_str(), -1, SQLITE_STATIC);
+        break;
+
+    case 4: // Age
+        sqlite3_bind_int(statement, 1, ivalue);
+        break;
+    
+    default:
+        return 0;
+        break;
+    }
+
+
+    returnCode =  sqlite3_step(statement);
+
+    if (returnCode == SQLITE_DONE)
+    {
+        return 0;
+    }
+    else
+    {
+        cerr << "Execution of sql failed: " << sqlite3_errmsg(DB) << endl;
+        return -1;
+    }
+
+
+
+
+    return -1;
+
 }
 
 void Account::createAccounts(int n)

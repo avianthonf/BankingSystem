@@ -23,6 +23,26 @@ bool readRestartFlag()
 
 }
 
+int verboseExit()
+{
+    char c1;
+    cout << "\nDo you want to go back to the main menu? (y/n) : ";
+    cin >> c1;
+    c1 = tolower(c1);
+
+    if (c1 == 'y')
+    {
+        restartFlag = true;
+        cout << "Restarting..." << endl;
+        return 0;
+    }
+    else
+    {
+        cout << "Exiting..." << endl;
+        return 0;
+    }
+}
+
 inline int menu0()
 {
     int choice = -1;
@@ -89,43 +109,107 @@ inline int action1(int choice) // Create accounts (action)
         Account::createAccounts(choice);
 
         cout << "Successfully created and saved accounts." << endl;
-        char c1;
-        cout << "Do you want to go back to the main menu? (y/n) : ";
-        cin >> c1;
-        c1 = tolower(c1);
+        
+        verboseExit();
 
-        if (c1 == 'y')
-        {
-            restartFlag = true;
-            cout << "Restarting..." << endl;
-            return 0;
-        }
-        else
-        {
-            cout << "Exiting..." << endl;
-            return 0;
-        }
+        return 0;
 
     }
 
     return -1;
 }
 
-inline int menu2()
+inline int action2() // Display all accounts (action only)
 {
+    cout << endl;
+
+    Account::displayAllAccounts();
+
+    verboseExit();
+
+    return 0;
 
 }
 
-inline int menu3()
+inline int menu3() // Helps you select the account number for the action
 {
+    int accNum = -1;
+    int choice = -1;
+    int tempAccNum;
+
+    bool choiceCondition = !((choice<3) && (choice>-1));
+
+    while ((accNum < 1) || (choiceCondition)) // will exit loop when both- accNum and choice r valid
+    {
+        cout << "\nSelect account number to perform action on," << endl;
+        cout << "1) Display All Accounts" << endl;
+        cout << "2) Enter Account Number (Selected Account will be displayed before selecting)" << endl;
+        cout << "0) EXIT" << endl;
+        cout << "Your choice: "; 
+        cin >> choice;
+
+        switch (choice)
+        {
+            case 0:
+                verboseExit();
+                break;
+
+            case 1:
+                Account::displayAllAccounts();
+                cout << endl;
+                break;
+
+            case 2:
+                cout << "Enter account number: ";
+                cin >> tempAccNum;
+                if (tempAccNum > 0)
+                {
+                    acc.dumpAccount();
+                    acc.pullAccount(tempAccNum);
+                    
+                    if (acc.getAccountNumber() == -1)
+                    {
+                        cout << "\nAccount DOES NOT EXIST with account number: " << tempAccNum << endl;
+                        acc.dumpAccount(); 
+                    }
+                    else
+                    {
+                        cout << "\nSelected account is: " << endl;
+                        acc.display();
+
+                        char c1;
+                        cout << "\nDo you want to select this account? (y/n) : ";
+                        cin >> c1;
+
+                        c1 = tolower(c1);
+
+                        if (c1 == 'y')
+                        {
+                            accNum = tempAccNum;
+                            return accNum;
+                        }
+                    }
+                }
+                break;
+
+                default:
+                    cout << "\nInvalid input: " << choice << endl;
+                    break;
+        }
+
+
+    }
+
+    return -1;
 
 }
 
 inline void welcome0()
 {
     cout << "Welcome to the Banking System" << endl;
-    cout << "Written purely in C++ with sqlite C library" << endl; 
+    cout << "Written purely in C++ with SQLite3 C library" << endl; 
     cout << "GitHub: https://github.com/avianthonf/BankingSystem.git" << endl;
+    cout << endl;
 }
 
 
@@ -146,9 +230,11 @@ int ui()
             break;
 
         case 2: // Display all accounts
+            action2();
             break;
 
         case 3: // Modify / delete existing account
+            menu3();
             break;
 
         default:    // Not possible because menu0() wont allow it
