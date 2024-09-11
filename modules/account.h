@@ -241,6 +241,8 @@ void Account::createAccounts(int n)
     int age; 
     AddressStruct address;
 
+    acc.dumpAccount();
+
     // Get user input and create accounts
 
     for (int i=0; i<n; i++)
@@ -266,17 +268,16 @@ void Account::createAccounts(int n)
         cin >> age;
 
         cout << "Enter Address:" << endl;
-        cin.ignore();
         cout << "\tState: ";
-        getline(cin, address.state);
-        cin.ignore();
+        cin >> address.state;
         cout << "\tCity: ";
-        getline(cin, address.city);
+        cin >> address.city;
         cout << "\tPincode: ";
         cin >> address.pincode;
 
-        acc.dumpAccount();
+        
         acc.init(accountTypeInt, accountBalance, name, age, address);
+        acc.dumpAccount();
     }
     
 }
@@ -289,6 +290,8 @@ bool Account::pullAccount(int accNum)
         dbNotOpen = false;
 
     }
+
+    dumpAccount();
 
     int returnCode;
     sqlite3_stmt *statement;
@@ -304,12 +307,10 @@ bool Account::pullAccount(int accNum)
         return false;
     }
 
-    int counter = 0;
 
     // int accNum, int accType, float balance, string n, int a, AddressStruct addr
     while ((returnCode = sqlite3_step(statement)) == SQLITE_ROW)
     {
-        counter++;
 
         int accNum = sqlite3_column_int(statement, 0);
         string accType = string(reinterpret_cast<const char*>(sqlite3_column_text(statement, 1)));
@@ -331,11 +332,6 @@ bool Account::pullAccount(int accNum)
 
     }
 
-    if (counter == 0)
-    {
-        return false;
-    }
-
     if (returnCode != SQLITE_DONE)
     {
         cerr << "Error while handling data" << endl;
@@ -343,7 +339,13 @@ bool Account::pullAccount(int accNum)
 
     sqlite3_finalize(statement);
 
-    return true;
+    if (accountNumber == -1)
+    {
+        dumpAccount();
+        return false;
+    }
+    else 
+        return true;
 
 }
 
