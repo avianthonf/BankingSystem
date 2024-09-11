@@ -139,7 +139,7 @@ inline int menu3() // Helps you select the account number for the action
 
     bool choiceCondition = !((choice<3) && (choice>-1));
 
-    while ((accNum < 1) || (choiceCondition)) // will exit loop when both- accNum and choice r valid
+    while (((accNum < 1) || (choiceCondition))) // will exit loop when both- accNum and choice r valid
     {
         cout << "\nSelect account number to perform action on," << endl;
         cout << "1) Display All Accounts" << endl;
@@ -152,6 +152,7 @@ inline int menu3() // Helps you select the account number for the action
         {
             case 0:
                 verboseExit();
+                return 0;
                 break;
 
             case 1:
@@ -200,8 +201,108 @@ inline int menu3() // Helps you select the account number for the action
 
     }
 
-    return -1;
+    return 0;
 
+
+}
+
+inline int action3sub1()
+{
+    int choice = -1;
+
+    bool condition = !((choice> -1) && (choice < 5));
+
+    while (condition)
+    {
+        cout << "\nAvailable actions are: " << endl;
+        cout << "1) Deposit" << endl;
+        cout << "2) Withdraw" << endl;
+        cout << "3) Change account details" << endl;
+        cout << "4) DELETE account" << endl;
+        cout << "0) EXIT" << endl;
+        cout << "Your choice: ";
+        cin >> choice;
+
+        condition = !((choice> -1) && (choice < 5));
+
+        if (condition)
+        {
+            cout << "\nInvalid input: " << choice;
+        }
+        else
+        {
+            return choice;
+        }
+    }
+
+    return -1;
+}
+
+inline int action3(int accNum)
+{
+    bool flag = true;
+    float amt = 0;
+
+    if (accNum == 0)
+    {
+        return 0;
+    }
+
+    while (flag)
+    {
+        cout << endl;
+        
+        acc.dumpAccount();
+        if (acc.pullAccount(accNum))
+        {
+            cout << "The account is: " << endl;
+            acc.display();
+
+        }
+        else
+        {
+            cout << "Account no longer exists with Account Number: " << accNum << endl;
+            flag = false;
+            verboseExit();
+            break;
+        }
+
+        switch (action3sub1())
+        {
+            case 0: // Exit
+                flag = false;
+                verboseExit();
+                break;
+
+            case 1: // Deposit
+                cout << "Please enter amount to deposit: ";
+                cin >> amt;
+                Account::deposit(accNum, amt);
+                amt = 0;
+                break;
+
+            case 2: // Withdraw
+                cout << "Please enter amount to withdraw: ";
+                cin >> amt;
+                Account::withdraw(accNum, amt);
+                amt = 0;
+                break;
+
+            case 3: // Change account details
+                break;
+
+            case 4: // Delete account
+                Account::deleteAccount(accNum);
+                break;
+
+            default: // Not possible because action3sub1() wont allow it
+                return -1;
+                break;
+
+        }
+    }
+
+    return 0;
 }
 
 inline void welcome0()
@@ -234,7 +335,7 @@ int ui()
             break;
 
         case 3: // Modify / delete existing account
-            menu3();
+            action3(menu3());
             break;
 
         default:    // Not possible because menu0() wont allow it

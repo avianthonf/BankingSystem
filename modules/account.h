@@ -107,46 +107,10 @@ class Account : public Person
 
         //Methods for account operation
 
-        int deposit(float amount)
-        {
-            if (amount > 0)
-            {
-                accountBalance += amount;
-                cout << "Deposit Successful. New balance: " << accountBalance << endl;
-                return 0;
-            }
-            else
-            {
-                cerr << "Please enter POSITIVE value for deposit amount." << endl;
-                return 1;
-            }
-        }
+        static int deposit(int accNum, float amount);
 
-        int withdraw(float amount) // Returns 0 for success, -1 for insufficient balance, 1 for invalid input
-        {
-            if (amount > 0)
-            {
-                if (amount >= accountBalance)
-                {
-                    accountBalance -= amount;
-                    cout << "Withdrawal successful. New balance: " << accountBalance << endl;
-                    return 0;
-                }
-                else
-                {
-                    cerr << "ERROR: Insufficient funds in account." << endl;
-                    cout << "Balance: " << accountBalance << ", Withrawal Request: " 
-                    << amount << endl;
-                    return -1;
-                }
-            }
-            else
-            {
-                cerr << "ERROR: Please enter POSITIVE value for Withdrawal Amount." << endl;
-                cout << "Entered value: " << amount << endl;
-                return 1;
-            }
-        }
+        static int withdraw(int accNum, float amount); // Returns 0 for success, -1 for insufficient balance, 1 for invalid input
+
 
 
         void saveAccount()
@@ -385,6 +349,71 @@ int Account::modifyDB(int accNum, int attribute, string svalue, float fvalue, in
 
     return -1;
 
+}
+
+int Account::deposit(int accNum, float amount)
+{
+    acc.dumpAccount();
+    
+
+    if (acc.pullAccount(accNum) && amount>0)
+    {
+        acc.accountBalance += amount;
+        modifyDB(accNum, 2, "", acc.accountBalance, 0);
+        acc.dumpAccount();
+        if (acc.pullAccount(accNum))
+        {
+            cout << "Deposit Successful. New balance: " << acc.accountBalance << endl;
+        }
+
+        acc.dumpAccount();
+        return 0;
+    }
+    else
+    {
+        cerr << "Please enter POSITIVE value for deposit amount." << endl;
+        return 1;
+    }
+}
+
+int Account::withdraw(int accNum, float amount) // Returns 0 for success, -1 for insufficient balance, 1 for invalid input
+{
+    acc.dumpAccount();
+
+    if ((amount > 0) && acc.pullAccount(accNum))
+    {
+        if (amount <= acc.accountBalance)
+        {
+            acc.accountBalance -= amount;
+            modifyDB(accNum, 2, "", acc.accountBalance, 0);
+            acc.dumpAccount();
+            if (acc.pullAccount(accNum))
+            {
+                cout << "Withdrawal successful. New balance: " << acc.accountBalance << endl;
+                acc.dumpAccount();
+                return 0;
+
+            }
+            
+        }
+        else
+        {
+            cerr << "ERROR: Insufficient funds in account." << endl;
+            cout << "Balance: " << acc.accountBalance << ", Withrawal Request: " 
+            << amount << endl;
+            acc.dumpAccount();
+            return -1;
+        }
+    }
+    else
+    {
+        cerr << "ERROR: Please enter POSITIVE value for Withdrawal Amount." << endl;
+        cout << "Entered value: " << amount << endl;
+        acc.dumpAccount();
+        return 1;
+    }
+
+    return -1;
 }
 
 void Account::createAccounts(int n)
