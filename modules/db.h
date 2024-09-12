@@ -2,7 +2,7 @@
 #define DB_H
 
 #include <iostream>
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 
 sqlite3 *DB;
