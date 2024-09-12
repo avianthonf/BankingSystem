@@ -1,4 +1,4 @@
-Banking System in C++
+**Banking System in C++**
 This project implements a simple banking system in C++ using the SQLite3 database. It allows users to create accounts, modify account details, perform transactions (deposit/withdraw), and manage account records. The system uses a modular approach with separate components for the user interface (UI), database management, account handling, person information, and address structuring.
 
 Features
