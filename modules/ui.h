@@ -238,6 +238,246 @@ inline int action3sub1()
     return -1;
 }
 
+inline void displayAddressStruct(AddressStruct addr)
+{
+    cout << "Pincode: " << addr.pincode << endl;
+    cout << "City: " << addr.city << endl;
+    cout << "State: " << addr.state << endl;
+    cout << "Country: " << addr.country << endl;
+
+}
+
+inline int action3submenu3(int accNum)
+{
+    int choice = -1;
+    string schoice;
+    bool condition = !((choice>-1) && (choice<5));
+    int c1;
+    string c1type;
+    AddressStruct addr;
+
+    char c;
+
+    while (condition)
+    {
+        cout << "Select attribute to modify:" << endl;
+        cout << "1) Change account type (Current/Savings)" << endl;
+        cout << "2) Change account holder name" << endl;
+        cout << "3) Change account holder age" << endl;
+        cout << "4) Change account holder address" << endl;
+        cout << "0) EXIT" << endl;
+        cout << "Your choice: " ;
+        cin >> choice;
+
+        condition = !((choice>-1) && (choice<5));
+
+        if (condition)
+        {
+            cout << "Invalid input: " << choice << endl;
+        }
+        else
+        {
+            if (choice == 0)
+            {
+                verboseExit();
+                condition = false;
+                break;
+                return 0;
+            }
+
+            switch (choice)
+            {
+            case 1:
+                acc.dumpAccount();
+                acc.pullAccount(accNum);
+                cout << "The account is: " << endl << endl;
+                acc.display();
+                
+                cout << "\nChange account type to: " << endl;
+                cout << "1) Savings Account" << endl;
+                cout << "2) Current Account" << endl;
+                cout << "Your choice: " ;
+                cin >> c1;
+
+                if (c1 == 1)
+                    c1type = "Savings Account";
+                else if (c1 == 2)
+                    c1type = "Current Account";
+                
+
+
+                if (c1==1 || c1==2)
+                {
+                    Account::updateAccountType(accNum, c1type);
+                    acc.dumpAccount();
+                    acc.pullAccount(accNum);
+                    cout << "\nUpdated account is:" << endl << endl;
+                    acc.display();
+                    acc.dumpAccount();
+                    condition = false;
+                    verboseExit();
+                    return 0;
+                }
+
+                else
+                {
+                    cout << "Invalid Input: " << c1 << endl;
+                }
+                break;
+
+            case 2: // Change name
+                acc.dumpAccount();
+                acc.pullAccount(accNum);
+                cout << "The account is: " << endl << endl;
+                acc.display();
+                
+                cin.ignore();
+                cout << "\nCurrent name on account: " << acc.getName() << endl;
+                cout << "Enter new name: ";
+                getline(cin, schoice);
+
+                
+                cout << "\nSelected name is :" << schoice << endl;
+                cout << "Save changes? (y/n) : ";
+                cin >> c;
+
+                c = tolower(c);
+                
+
+                if (c == 'y')
+                {
+                    Account::updateName(accNum, schoice);
+                    acc.dumpAccount();
+                    acc.pullAccount(accNum);
+                    cout << "\nUpdated account is:" << endl << endl;
+                    acc.display();
+                    acc.dumpAccount();
+                    condition = false;
+                    verboseExit();
+                    return 0;
+                }
+                else
+                {
+                    condition = false;
+                    verboseExit();
+                    return 0;
+                }
+                break;
+
+            case 3: // Change age
+                acc.dumpAccount();
+                acc.pullAccount(accNum);
+                cout << "The account is: " << endl << endl;
+                acc.display();
+                
+                c1 = 0;
+
+                while (c1 < 1)
+                {
+                    cout << "\nCurrent age on account: " << acc.getAge() << endl;
+                    cout << "Enter new age: ";
+                    cin >> c1;
+
+                    if (c1 < 1)
+                    {
+                        cout << "Invalid choice: " << c1 << endl;
+                        cout << "Please enter valid age." << endl << endl;
+                    }
+                }
+
+                
+                cout << "\nSelected age is :" << c1 << endl;
+                cout << "Save changes? (y/n) : ";
+                cin >> c;
+
+                c = tolower(c);
+                
+
+                if (c == 'y')
+                {
+                    Account::updateAge(accNum, c1);
+                    acc.dumpAccount();
+                    acc.pullAccount(accNum);
+                    cout << "\nUpdated account is:" << endl << endl;
+                    acc.display();
+                    acc.dumpAccount();
+                    condition = false;
+                    verboseExit();
+                    return 0;
+                }
+                else
+                {
+                    condition = false;
+                    verboseExit();
+                    return 0;
+                }
+                break;
+
+            case 4: // Change address
+                acc.dumpAccount();
+                acc.pullAccount(accNum);
+                cout << "The account is: " << endl << endl;
+                acc.display();
+                
+                
+
+                cout << endl << endl << "Current address is: " << endl;
+                displayAddressStruct(acc.getAddress());
+
+                cout << "\nEnter new address:" << endl;
+                
+                cout << "Pincode: ";
+                cin >> addr.pincode;
+
+                cout << "City: ";
+                cin >> addr.city;
+
+                cout << "State: ";
+                cin >> addr.state;
+
+                cout << "Country: ";
+                cin >> addr.country;
+
+                cout << "\n\nEntered address is :" << endl;
+                displayAddressStruct(addr);
+
+                cout << "\nSave changes? (y/n) : " ;
+                cin >> c;
+
+                c = tolower(c);
+                
+
+                if (c == 'y')
+                {
+                    Account::updateAddress(accNum, addr);
+                    acc.dumpAccount();
+                    acc.pullAccount(accNum);
+                    cout << "\nUpdated account is:" << endl << endl;
+                    acc.display();
+                    acc.dumpAccount();
+                    condition = false;
+                    verboseExit();
+                    return 0;
+                }
+                else
+                {
+                    condition = false;
+                    verboseExit();
+                    return 0;
+                }
+                break;
+            
+            default: // parent function wont allow this
+                return 0;
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
+
+
 inline int action3(int accNum)
 {
     bool flag = true;
@@ -289,6 +529,8 @@ inline int action3(int accNum)
                 break;
 
             case 3: // Change account details
+                if (!action3submenu3(accNum))
+                    flag = false;
                 break;
 
             case 4: // Delete account

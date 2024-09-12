@@ -153,6 +153,11 @@ class Account : public Person
         bool pullAccount(int accNum);
         static void displayAllAccounts();
         static void deleteAccount(int accNum);
+        static bool updateAccountType(int accNum, string accType);
+        static bool updateName(int accNum, string name);
+        static bool updateAge(int accNum, int age);
+        static bool updateAddress(int accNum, AddressStruct addr);
+        
 
 
 };
@@ -204,17 +209,18 @@ int Account::modifyDBAddress(int accNum, AddressStruct addr)
         dbNotOpen = false;
     }
 
-    string sql[3];
+    string sql[4];
 
     sql[0] = "UPDATE Accounts SET pincode = ? WHERE accountNumber = ?;";
     sql[1] = "UPDATE Accounts SET city = ? WHERE accountNumber = ?;";
     sql[2] = "UPDATE Accounts SET state = ? WHERE accountNumber = ?;";
+    sql[3] = "UPDATE Accounts SET country = ? WHERE accountNumber = ?;";
 
-    sqlite3_stmt* statement[3];
+    sqlite3_stmt* statement[4];
 
-    int rc[3];
+    int rc[4];
 
-    for (int i=0; i<3; i++)
+    for (int i=0; i<4; i++)
     {
         rc[i] = sqlite3_prepare_v2(DB, sql[i].c_str(), -1, &statement[i], nullptr);
 
@@ -225,7 +231,7 @@ int Account::modifyDBAddress(int accNum, AddressStruct addr)
         }
     }
 
-    for (int i=0; i < 3; i++)
+    for (int i=0; i < 4; i++)
     {
         sqlite3_bind_int(statement[i], 2, accNum);
     }
@@ -233,8 +239,9 @@ int Account::modifyDBAddress(int accNum, AddressStruct addr)
     sqlite3_bind_int(statement[0], 1, addr.pincode);
     sqlite3_bind_text(statement[1], 1, addr.city.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(statement[2], 1, addr.state.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(statement[3], 1, addr.country.c_str(), -1, SQLITE_STATIC);
 
-    for (int i=0; i < 3; i++)
+    for (int i=0; i < 4; i++)
     {
         rc[i] = sqlite3_step(statement[i]);
 
@@ -245,7 +252,7 @@ int Account::modifyDBAddress(int accNum, AddressStruct addr)
         }
     }
 
-    for (int i=0; i < 3; i++)
+    for (int i=0; i < 4; i++)
     {
         sqlite3_finalize(statement[i]);
     }
@@ -306,7 +313,6 @@ int Account::modifyDB(int accNum, int attribute, string svalue, float fvalue, in
 
     sqlite3_bind_int(statement, 2, accNum);
 
-    svalue = "'" + svalue + "'";
     
     switch (attribute)
     {
@@ -374,6 +380,33 @@ int Account::deposit(int accNum, float amount)
         cerr << "Please enter POSITIVE value for deposit amount." << endl;
         return 1;
     }
+}
+
+// acctype, bal, name, age
+
+bool Account::updateAccountType(int accNum, string accType)
+{
+    Account::modifyDB(accNum, 1, accType , 0, 0);
+    return true;
+
+}
+bool Account::updateName(int accNum, string name)
+{
+    Account::modifyDB(accNum, 3, name, 0, 0);
+    return true;
+
+}
+bool Account::updateAge(int accNum, int age)
+{
+    Account::modifyDB(accNum, 4, "", 0, age);
+    return true;
+
+}
+bool Account::updateAddress(int accNum, AddressStruct addr)
+{
+    Account::modifyDBAddress(accNum, addr);
+    return true;
+
 }
 
 int Account::withdraw(int accNum, float amount) // Returns 0 for success, -1 for insufficient balance, 1 for invalid input
