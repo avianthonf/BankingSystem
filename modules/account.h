@@ -457,7 +457,7 @@ void Account::createAccounts(int n)
     string accountType; int accountTypeInt = 1; 
     double accountBalance; 
     string name;
-    int age; 
+    int age = 0; 
     AddressStruct address;
 
     acc.dumpAccount();
@@ -483,8 +483,20 @@ void Account::createAccounts(int n)
         cout << "Enter Name: ";
         getline(cin, name);
 
+
+
+        while (age < 1)
+        {
         cout << "Enter Age: ";
         cin >> age;
+
+        if (age < 1)
+        {
+            cout << "\nInvalid input : " << age << endl;
+            cout << "Please enter positive value for age." << endl << endl;
+        }
+
+        }
 
         cout << "Enter Address:" << endl;
         cout << "\tState: ";
