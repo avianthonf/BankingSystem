@@ -24,3 +24,10 @@ jobs:
       # Run the linux-build.sh script
       - name: Run linux-build.sh
         run: ./linux-build.sh
+
+      # Upload build artifacts
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Banking-System-x86_64-Linux.bin
+          path: ./Banking-System-x86_64-Linux.bin
