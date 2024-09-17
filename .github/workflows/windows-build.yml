@@ -1,0 +1,33 @@
+name: Windows Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest  # Use the latest Windows runner
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up the build environment (if necessary)
+      - name: Set up build environment
+        run: |
+          echo "Setting up environment for Windows"
+
+      # Run the PowerShell build script
+      - name: Run Windows build script
+        shell: pwsh
+        run: |
+          ./windows-build.ps1
+
+      # Upload build artifacts
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Banking-System-x86_64-Windows.exe
+          path: ./Banking-System-x86_64-Windows.exe

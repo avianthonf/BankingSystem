@@ -1,0 +1,31 @@
+name: Linux Build
+
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Give execute permission to linux-build.sh
+      - name: Make linux-build.sh executable
+        run: chmod +x ./linux-build.sh
+
+      # Run the linux-build.sh script
+      - name: Run linux-build.sh
+        run: ./linux-build.sh
+
+      # Upload build artifacts
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Banking-System-x86_64-Linux.bin
+          path: ./Banking-System-x86_64-Linux.bin
