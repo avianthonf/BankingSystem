@@ -5,9 +5,7 @@ on:
   push:       # Triggers when you push changes to the repository
     branches:
       - main  # Change to the branch you want
-  pull_request: # Triggers on pull requests to the repository
-    branches:
-      - main  # Change to the branch you want
+
 
 # Set the job and environment
 jobs:
@@ -17,7 +15,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Give execute permission to linux-build.sh
       - name: Make linux-build.sh executable
