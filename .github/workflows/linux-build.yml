@@ -1,0 +1,28 @@
+name: Linux Build
+
+# Controls when the workflow will run
+on:
+  push:       # Triggers when you push changes to the repository
+    branches:
+      - main  # Change to the branch you want
+  pull_request: # Triggers on pull requests to the repository
+    branches:
+      - main  # Change to the branch you want
+
+# Set the job and environment
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu as the runner
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Give execute permission to linux-build.sh
+      - name: Make linux-build.sh executable
+        run: chmod +x ./linux-build.sh
+
+      # Run the linux-build.sh script
+      - name: Run linux-build.sh
+        run: ./linux-build.sh
